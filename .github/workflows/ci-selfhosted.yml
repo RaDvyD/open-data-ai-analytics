@@ -1,0 +1,24 @@
+name: CI (self-hosted)
+
+on:
+  workflow_dispatch: # Запускається лише вручну
+
+jobs:
+  run-visualization-local:
+    runs-on: self-hosted # Вказуємо, що треба шукати твій ПК
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run visualization module
+        run: |
+          mkdir -p artifacts/visualize
+          echo "Running on my local Mac!"
+          python3 src/visualize.py > artifacts/visualize/run.log 2>&1
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-visualize-selfhosted
+          path: artifacts/visualize
