@@ -27,25 +27,36 @@ jobs:
       matrix:
         module: [load_data, data_quality, research, visualize]
 
-    # Запускаємо або всі, або лише обраний вручну модуль
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.module == 'all' || github.event.inputs.module == matrix.module }}
-
     steps:
+      # Створюємо змінну-перемикач, яка скаже, чи треба запускати цей модуль
+      - name: Check if module should run
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.module }}" != "all" && "${{ inputs.module }}" != "${{ matrix.module }}" ]]; then
+            echo "run_step=false" >> $GITHUB_ENV
+          else
+            echo "run_step=true" >> $GITHUB_ENV
+          fi
+
       - name: Checkout repository
+        if: env.run_step == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Python
+        if: env.run_step == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Run module
+        if: env.run_step == 'true'
         run: |
           mkdir -p artifacts/${{ matrix.module }}
           echo "Running src/${{ matrix.module }}.py"
           python src/${{ matrix.module }}.py > artifacts/${{ matrix.module }}/run.log 2>&1
 
       - name: Upload artifacts
+        if: env.run_step == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: artifacts-${{ matrix.module }}
