@@ -1,0 +1,52 @@
+name: CI (modules)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      module:
+        description: "Which module to run (or 'all')"
+        required: true
+        default: "all"
+        type: choice
+        options:
+          - all
+          - load_data
+          - data_quality
+          - research
+          - visualize
+
+jobs:
+  run-modules:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [load_data, data_quality, research, visualize]
+
+    # Запускаємо або всі, або лише обраний вручну модуль
+    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.module == 'all' || github.event.inputs.module == matrix.module }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run module
+        run: |
+          mkdir -p artifacts/${{ matrix.module }}
+          echo "Running src/${{ matrix.module }}.py"
+          python src/${{ matrix.module }}.py > artifacts/${{ matrix.module }}/run.log 2>&1
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-${{ matrix.module }}
+          path: artifacts/${{ matrix.module }}
