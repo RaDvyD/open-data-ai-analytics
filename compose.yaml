@@ -1,0 +1,43 @@
+services:
+  data_load:
+    build: ./src/data_load
+    volumes:
+      - ./data:/data
+      - ./db:/db
+
+  data_quality:
+    build: ./src/data_quality
+    depends_on:
+      data_load:
+        condition: service_completed_successfully
+    volumes:
+      - ./db:/db
+      - ./reports:/reports
+
+  research:
+    build: ./src/research
+    depends_on:
+      data_quality:
+        condition: service_completed_successfully
+    volumes:
+      - ./db:/db
+      - ./reports:/reports
+
+  visualize:
+    build: ./src/visualize
+    depends_on:
+      research:
+        condition: service_completed_successfully
+    volumes:
+      - ./db:/db
+      - ./reports:/reports
+
+  web:
+    build: ./src/web
+    ports:
+      - "8080:5000"
+    depends_on:
+      visualize:
+        condition: service_completed_successfully
+    volumes:
+      - ./reports:/reports

@@ -1,0 +1,21 @@
+{
+    "total_rows": 97491,
+    "columns": [
+        "oblast",
+        "raion",
+        "hromada",
+        "level",
+        "started_at",
+        "finished_at",
+        "source"
+    ],
+    "unique_values_per_column": {
+        "oblast": 26,
+        "raion": 119,
+        "hromada": 132,
+        "level": 3,
+        "started_at": 93369,
+        "finished_at": 92959,
+        "source": 1
+    }
+}
