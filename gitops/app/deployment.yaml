@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+  namespace: analytics-app
+  labels:
+    app: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - name: web-container
+        # ЗАМІНИТИ НА ВАШ ОБРАЗ АБО ЗАЛИШИТИ NGINX ДЛЯ ТЕСТУ
+        image: nginx:latest
+        ports:
+        - containerPort: 80
